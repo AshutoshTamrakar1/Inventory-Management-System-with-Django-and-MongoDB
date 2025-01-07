@@ -74,12 +74,23 @@ TEMPLATES = [
 WSGI_APPLICATION = "inventory_management.wsgi.application"
 
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'djongo',
+#        'NAME': 'inventory',  # Your MongoDB database name
+#        'CLIENT': {
+#            'host': 'mongodb://localhost:27017/',  # Your MongoDB host
+#        }
+#    }
+#}
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.dummy',
     }
 }
+
+
 #import mongoengine
 #mongoengine.connect(db='inventory', host='mongodb://localhost:27017/')
 
