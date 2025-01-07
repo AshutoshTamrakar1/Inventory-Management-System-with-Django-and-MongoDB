@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Sale Order</title>
+</head>
+<body>
+    <h1>Cancel Sale Order</h1>
+    <form id="cancel-sale-order-form">
+        <label for="order_id">Order ID:</label>
+        <input type="number" id="order_id" name="order_id" required><br>
+        <button type="submit">Cancel Sale Order</button>
+    </form>
+
+    <script>
+        document.getElementById('cancel-sale-order-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const orderId = document.getElementById('order_id').value;
+
+            fetch(`/api/cancel_sale_order/${orderId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

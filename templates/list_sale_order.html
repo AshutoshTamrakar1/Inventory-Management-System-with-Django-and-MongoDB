@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sale Order List</title>
+</head>
+<body>
+    <h1>Sale Order List</h1>
+    <table id="sale-order-table">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>Sale Date</th>
+                <th>Status</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Sale orders will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <script>
+        fetch('/api/list_sale_orders/')
+        .then(response => response.json())
+        .then(saleOrders => {
+            const tableBody = document.querySelector('#sale-order-table tbody');
+            saleOrders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.product_name}</td>
+                    <td>${order.quantity}</td>
+                    <td>${order.total_price}</td>
+                    <td>${order.sale_date}</td>
+                    <td>${order.status}</td>
+                    <td>${order.notes}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
