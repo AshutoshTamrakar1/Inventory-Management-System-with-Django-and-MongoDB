@@ -33,7 +33,7 @@ def complete_sale_order_page(request):
 
 
 def list_sale_orders_page(request):
-    return render(request, 'list_sale_orders.html')
+    return render(request, 'list_sale_order.html')
 
 from django.shortcuts import render
 

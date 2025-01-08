@@ -18,7 +18,7 @@
             event.preventDefault();
             const orderId = document.getElementById('order_id').value;
 
-            fetch(`/api/complete_sale_order/${orderId}/`, {
+            fetch(`/inventory/complete_sale_order/${orderId}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

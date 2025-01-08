@@ -20,7 +20,7 @@
     </table>
 
     <script>
-        fetch('/api/check_stock_levels/')
+        fetch('/inventory/check_stock_levels/')
         .then(response => response.json())
         .then(stockLevels => {
             const tableBody = document.querySelector('#stock-level-table tbody');

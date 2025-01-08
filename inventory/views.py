@@ -113,25 +113,28 @@ def add_stock_movement(request):
 @api_view(['POST'])
 def create_sale_order(request):
     data = request.data
-    product_id = data.get('product_id')
+    product_name = data.get('product_name')
     quantity = data.get('quantity')
 
-    # Check if product exists
-    product = db.products.find_one({'_id': ObjectId(product_id)})
+    # Check if product exists by name
+    product = db.products.find_one({'name': product_name})
     if not product:
         return Response({"error": "Product not found"}, status=status.HTTP_400_BAD_REQUEST)
 
+    product_id = product['_id']
+
     # Verify sufficient stock
-    if product['stock_quantity'] < quantity:
+    if int(product['stock_quantity']) < int(quantity):
         return Response({"error": "Insufficient stock for this order"}, status=status.HTTP_400_BAD_REQUEST)
 
     # Update stock levels
-    new_quantity = product['stock_quantity'] - quantity
-    db.products.update_one({'_id': ObjectId(product_id)}, {'$set': {'stock_quantity': new_quantity}})
+    new_quantity = int(product['stock_quantity']) - int(quantity)
+    db.products.update_one({'_id': product_id}, {'$set': {'stock_quantity': new_quantity}})
 
     # Calculate total price
-    total_price = product['price'] * quantity
+    total_price = int(product['price']) * int(quantity)
     data['total_price'] = total_price
+    data['product_id'] = str(product_id)
 
     # Add the sale order record
     order_id = db.sale_orders.insert_one(data).inserted_id

@@ -22,7 +22,7 @@
     </table>
 
     <script>
-        fetch('/api/list_suppliers/')
+        fetch('/inventory/list_suppliers/')
         .then(response => response.json())
         .then(suppliers => {
             const tableBody = document.querySelector('#supplier-table tbody');

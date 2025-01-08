@@ -24,7 +24,7 @@
     </table>
 
     <script>
-        fetch('/api/list_sale_orders/')
+        fetch('/inventory/list_sale_orders/')
         .then(response => response.json())
         .then(saleOrders => {
             const tableBody = document.querySelector('#sale-order-table tbody');
