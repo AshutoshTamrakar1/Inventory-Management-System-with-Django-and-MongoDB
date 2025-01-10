@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from .views import home, products_page
+from .views import home, orders_page, products_page, stock_page, suppliers_page
 from inventory_management.views import add_product_page, list_products_page, add_supplier_page, list_suppliers_page, add_stock_movement_page, create_sale_order_page, cancel_sale_order_page, complete_sale_order_page, list_sale_orders_page, check_stock_levels_page
 
 urlpatterns = [
@@ -25,6 +25,9 @@ urlpatterns = [
     path('inventory/', include('inventory.urls')),
     path('', home, name='home'),
     path('products/', products_page, name='products_page'),
+    path('suppliers/', suppliers_page, name='suppliers_page'),
+    path('orders/', orders_page, name='orders_page'),
+    path('stock/', stock_page, name='stock_page'),
     path('add_product_page/', add_product_page, name='add_product_page'),
     path('list_products_page/', list_products_page, name='list_products_page'),
     path('add_supplier_page/', add_supplier_page, name='add_supplier_page'),

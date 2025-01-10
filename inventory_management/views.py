@@ -46,3 +46,15 @@ def home(request):
 
 def products_page(request):
     return render(request, 'products.html')
+
+
+def suppliers_page(request):
+    return render(request, 'suppliers.html')
+
+
+def orders_page(request):
+    return render(request, 'orders.html')
+
+
+def stock_page(request):
+    return render(request, 'stock.html')

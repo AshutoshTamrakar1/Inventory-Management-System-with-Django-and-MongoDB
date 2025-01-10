@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from .models import Product, Supplier, StockMovement, SaleOrder
 from rest_framework import status
+from datetime import datetime, timezone
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Product
@@ -140,6 +141,9 @@ def create_sale_order(request):
     total_price = float(product['price']) * int(quantity)
     data['total_price'] = total_price
     data['product_id'] = str(product_id)
+    data['status'] = 'Pending'
+    data['sale_date'] = datetime.now(timezone.utc)
+    data['sale_date'] = data['sale_date'].strftime('%Y-%m-%d %H:%M:%S')
 
     # Add the sale order record
     order_id = db.sale_orders.insert_one(data).inserted_id
