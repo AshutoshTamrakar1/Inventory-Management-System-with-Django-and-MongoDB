@@ -35,7 +35,14 @@ def complete_sale_order_page(request):
 def list_sale_orders_page(request):
     return render(request, 'list_sale_order.html')
 
-from django.shortcuts import render
 
 def check_stock_levels_page(request):
     return render(request, 'check_stock_levels.html')
+
+
+def home(request):
+    return render(request, 'home.html')
+
+
+def products_page(request):
+    return render(request, 'products.html')
