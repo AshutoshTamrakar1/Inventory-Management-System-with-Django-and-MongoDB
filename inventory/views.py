@@ -79,33 +79,37 @@ def list_suppliers(request):
 @api_view(['POST'])
 def add_stock_movement(request):
     data = request.data
-    product_id = data.get('product_id')
-    quantity = data.get('quantity')
+    product_name = data.get('product_name')
+    quantity = int(data.get('quantity'))  # Ensure quantity is an integer
     movement_type = data.get('movement_type')
 
-    # Check if product exists
-    product = db.products.find_one({'_id': ObjectId(product_id)})
+    # Check if product exists by name
+    product = db.products.find_one({'name': product_name})
     if not product:
         return Response({"error": "Product not found"}, status=status.HTTP_400_BAD_REQUEST)
 
+    product_id = product['_id']
+    product_stock_quantity = int(product['stock_quantity'])  # Convert stock_quantity to integer
+
     # Update stock quantity based on movement type
     if movement_type == 'In':
-        new_quantity = product['stock_quantity'] + quantity
+        new_quantity = product_stock_quantity + quantity
     elif movement_type == 'Out':
-        if product['stock_quantity'] < quantity:
+        if product_stock_quantity < quantity:
             return Response({"error": "Insufficient stock for this operation"}, status=status.HTTP_400_BAD_REQUEST)
-        new_quantity = product['stock_quantity'] - quantity
+        new_quantity = product_stock_quantity - quantity
     else:
         return Response({"error": "Invalid movement type"}, status=status.HTTP_400_BAD_REQUEST)
 
     # Update the product's stock quantity
-    db.products.update_one({'_id': ObjectId(product_id)}, {'$set': {'stock_quantity': new_quantity}})
+    db.products.update_one({'_id': product_id}, {'$set': {'stock_quantity': new_quantity}})
 
     # Add the stock movement record
+    data['product_id'] = str(product_id)  # Add product_id to the movement data
     movement_id = db.stock_movements.insert_one(data).inserted_id
     data['_id'] = str(movement_id)  # Convert ObjectId to string
-    data['product_id'] = str(product_id)  # Convert ObjectId to string
     return Response(data, status=status.HTTP_201_CREATED)
+
 
 
 
@@ -114,7 +118,7 @@ def add_stock_movement(request):
 def create_sale_order(request):
     data = request.data
     product_name = data.get('product_name')
-    quantity = data.get('quantity')
+    quantity = int(data.get('quantity'))
 
     # Check if product exists by name
     product = db.products.find_one({'name': product_name})
@@ -122,17 +126,18 @@ def create_sale_order(request):
         return Response({"error": "Product not found"}, status=status.HTTP_400_BAD_REQUEST)
 
     product_id = product['_id']
+    product_stock_quantity = int(product['stock_quantity'])
 
     # Verify sufficient stock
-    if int(product['stock_quantity']) < int(quantity):
+    if product_stock_quantity < quantity:
         return Response({"error": "Insufficient stock for this order"}, status=status.HTTP_400_BAD_REQUEST)
 
     # Update stock levels
-    new_quantity = int(product['stock_quantity']) - int(quantity)
+    new_quantity = product_stock_quantity - quantity
     db.products.update_one({'_id': product_id}, {'$set': {'stock_quantity': new_quantity}})
 
     # Calculate total price
-    total_price = int(product['price']) * int(quantity)
+    total_price = float(product['price']) * int(quantity)
     data['total_price'] = total_price
     data['product_id'] = str(product_id)
 

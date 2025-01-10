@@ -8,18 +8,15 @@
 <body>
     <h1>Add Stock Movement</h1>
     <form id="add-stock-movement-form">
-        <label for="product">Product:</label>
-        <input type="text" id="product" name="product" required><br>
+        <label for="product_name">Product Name:</label>
+        <input type="text" id="product_name" name="product_name" required><br>
         <label for="quantity">Quantity:</label>
         <input type="number" id="quantity" name="quantity" required><br>
-        <label for="movement_type">Movement Type:</label>
-        <select id="movement_type" name="movement_type" required>
-            <option value="In">In</option>
-            <option value="Out">Out</option>
-        </select><br>
+        <label for="movement_type">Movement Type (In/Out):</label>
+        <input type="text" id="movement_type" name="movement_type" required><br>
         <label for="notes">Notes:</label>
-        <textarea id="notes" name="notes"></textarea><br>
-        <button type="submit">Record Movement</button>
+        <input type="text" id="notes" name="notes"><br>
+        <button type="submit">Add Stock Movement</button>
     </form>
 
     <script>
@@ -43,7 +40,7 @@
                 if (data.error) {
                     alert(data.error);
                 } else {
-                    alert('Stock movement recorded successfully!');
+                    alert('Stock movement added successfully!');
                 }
             })
             .catch(error => console.error('Error:', error));
