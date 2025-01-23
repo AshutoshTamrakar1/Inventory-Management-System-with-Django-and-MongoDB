@@ -1,8 +1,7 @@
 from django.db import models
-from db_connection import db
 
 class Supplier(models.Model):
-    supplier_id = models.AutoField(primary_key=True)
+    supplier_id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=20)
@@ -11,20 +10,9 @@ class Supplier(models.Model):
     def __str__(self):
         return self.name
 
-    @classmethod
-    def create(cls, data):
-        db.suppliers.insert_one(data)
-
-    @classmethod
-    def get_all(cls):
-        return list(db.suppliers.find())
-
-    @classmethod
-    def get_by_id(cls, supplier_id):
-        return db.suppliers.find_one({'supplier_id': supplier_id})
 
 class Product(models.Model):
-    product_id = models.AutoField(primary_key=True)
+    product_id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
     category = models.CharField(max_length=255)
@@ -35,17 +23,6 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-    @classmethod
-    def create(cls, data):
-        db.products.insert_one(data)
-
-    @classmethod
-    def get_all(cls):
-        return list(db.products.find())
-
-    @classmethod
-    def get_by_id(cls, product_id):
-        return db.products.find_one({'product_id': product_id})
 
 class SaleOrder(models.Model):
     order_id = models.AutoField(primary_key=True)
@@ -58,17 +35,6 @@ class SaleOrder(models.Model):
     def __str__(self):
         return f'Order {self.order_id} for {self.product.name}'
 
-    @classmethod
-    def create(cls, data):
-        db.sale_orders.insert_one(data)
-
-    @classmethod
-    def get_all(cls):
-        return list(db.sale_orders.find())
-
-    @classmethod
-    def get_by_id(cls, order_id):
-        return db.sale_orders.find_one({'order_id': order_id})
 
 class StockMovement(models.Model):
     movement_id = models.AutoField(primary_key=True)
@@ -81,6 +47,56 @@ class StockMovement(models.Model):
     def __str__(self):
         return f'{self.movement_type} for {self.product.name}'
 
+
+# Remove all model definitions that conflict with MongoDB logic
+from db_connection import db
+
+# Define your MongoDB logic here
+# For example:
+
+class MongoSupplier:
+    @classmethod
+    def create(cls, data):
+        db.suppliers.insert_one(data)
+
+    @classmethod
+    def get_all(cls):
+        return list(db.suppliers.find())
+
+    @classmethod
+    def get_by_id(cls, supplier_id):
+        return db.suppliers.find_one({'supplier_id': supplier_id})
+
+
+class MongoProduct:
+    @classmethod
+    def create(cls, data):
+        db.products.insert_one(data)
+
+    @classmethod
+    def get_all(cls):
+        return list(db.products.find())
+
+    @classmethod
+    def get_by_id(cls, product_id):
+        return db.products.find_one({'product_id': product_id})
+
+
+class MongoSaleOrder:
+    @classmethod
+    def create(cls, data):
+        db.sale_orders.insert_one(data)
+
+    @classmethod
+    def get_all(cls):
+        return list(db.sale_orders.find())
+
+    @classmethod
+    def get_by_id(cls, order_id):
+        return db.sale_orders.find_one({'order_id': order_id})
+
+
+class MongoStockMovement:
     @classmethod
     def create(cls, data):
         db.stock_movements.insert_one(data)

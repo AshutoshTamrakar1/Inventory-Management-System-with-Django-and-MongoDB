@@ -1,6 +1,7 @@
 from pyexpat.errors import messages
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from .models import Product, Supplier, StockMovement, SaleOrder
 from rest_framework import status
 from datetime import datetime, timezone
@@ -10,6 +11,7 @@ from .models import Product
 from .serializers import ProductSerializer, SupplierSerializer, StockMovementSerializer, SaleOrderSerializer, ProductStockSerializer
 from db_connection import db
 from bson import ObjectId
+
 
 
 #Add_Product_API
@@ -188,6 +190,8 @@ def cancel_sale_order(request, pk):
 #Complete_Sale_Order_API
 @api_view(['POST'])
 def complete_sale_order(request, pk):
+    # Debugging print to check the ID received 
+    print(f"Received order ID: {pk}")
     try:
         # Retrieve sale order by ObjectId
         sale_order = db.sale_orders.find_one({'_id': ObjectId(pk)})
@@ -196,6 +200,16 @@ def complete_sale_order(request, pk):
         
         if sale_order['status'] != "Pending":
             return Response({"error": "Only pending orders can be completed"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Retrieve product by ObjectId
+        product_id = sale_order['product_id']
+        product = db.products.find_one({'_id': ObjectId(product_id)})
+        if not product:
+            return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Update stock levels
+        new_quantity = product['stock_quantity'] - sale_order['quantity']
+        db.products.update_one({'_id': ObjectId(product_id)}, {'$set': {'stock_quantity': new_quantity}})
 
         # Update sale order status
         db.sale_orders.update_one({'_id': ObjectId(pk)}, {'$set': {'status': "Completed"}})

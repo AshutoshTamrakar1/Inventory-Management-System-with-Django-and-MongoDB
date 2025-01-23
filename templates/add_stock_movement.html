@@ -1,50 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Stock Movement</title>
-</head>
-<body>
-    <h1>Add Stock Movement</h1>
-    <form id="add-stock-movement-form">
-        <label for="product_name">Product Name:</label>
-        <input type="text" id="product_name" name="product_name" required><br>
-        <label for="quantity">Quantity:</label>
-        <input type="number" id="quantity" name="quantity" required><br>
-        <label for="movement_type">Movement Type (In/Out):</label>
-        <input type="text" id="movement_type" name="movement_type" required><br>
-        <label for="notes">Notes:</label>
-        <input type="text" id="notes" name="notes"><br>
-        <button type="submit">Add Stock Movement</button>
-    </form>
+{% extends 'base.html' %}
 
-    <script>
-        document.getElementById('add-stock-movement-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
+{% block title %}Add Stock Movement{% endblock %}
 
-            fetch('/inventory/add_stock_movement/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    alert('Stock movement added successfully!');
-                }
-            })
-            .catch(error => console.error('Error:', error));
+{% block content %}
+<h1>Add Stock Movement</h1>
+<form id="add-stock-movement-form">
+    <label for="product_name">Product Name:</label>
+    <input type="text" id="product_name" name="product_name" required><br>
+    <label for="quantity">Quantity:</label>
+    <input type="number" id="quantity" name="quantity" required><br>
+    <label for="movement_type">Movement Type (In/Out):</label>
+    <input type="text" id="movement_type" name="movement_type" required><br>
+    <label for="notes">Notes:</label>
+    <input type="text" id="notes" name="notes"><br>
+    <button type="submit">Add Stock Movement</button>
+</form>
+
+<script>
+    document.getElementById('add-stock-movement-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
         });
-    </script>
-</body>
-</html>
+
+        fetch('/inventory/add_stock_movement/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert('Stock movement added successfully!');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+{% endblock %}

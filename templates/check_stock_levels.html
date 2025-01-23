@@ -1,39 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Levels</title>
-</head>
-<body>
-    <h1>Stock Levels</h1>
-    <table id="stock-level-table">
-        <thead>
-            <tr>
-                <th>Product Name</th>
-                <th>Stock Quantity</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Stock levels will be dynamically added here -->
-        </tbody>
-    </table>
+{% extends 'base.html' %}
 
-    <script>
-        fetch('/inventory/check_stock_levels/')
-        .then(response => response.json())
-        .then(stockLevels => {
-            const tableBody = document.querySelector('#stock-level-table tbody');
-            stockLevels.forEach(product => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${product.name}</td>
-                    <td>${product.stock_quantity}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-    </script>
-</body>
-</html>
+{% block title %}Stock Levels{% endblock %}
+
+{% block content %}
+<h1>Stock Levels</h1>
+<table id="stock-level-table">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Stock Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Stock levels will be dynamically added here -->
+    </tbody>
+</table>
+
+<script>
+    fetch('/inventory/check_stock_levels/')
+    .then(response => response.json())
+    .then(stockLevels => {
+        const tableBody = document.querySelector('#stock-level-table tbody');
+        stockLevels.forEach(product => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${product.name}</td>
+                <td>${product.stock_quantity}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    })
+    .catch(error => console.error('Error:', error));
+</script>
+{% endblock %}

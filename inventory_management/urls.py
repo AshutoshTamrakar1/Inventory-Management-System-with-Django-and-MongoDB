@@ -17,12 +17,15 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from .views import home, orders_page, products_page, stock_page, suppliers_page
+from .views import home, orders_page, products_page, stock_page, suppliers_page, user_login, user_logout, register
 from inventory_management.views import add_product_page, list_products_page, add_supplier_page, list_suppliers_page, add_stock_movement_page, create_sale_order_page, cancel_sale_order_page, complete_sale_order_page, list_sale_orders_page, check_stock_levels_page
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('inventory/', include('inventory.urls')),
+    path('register/', register, name='register'),
+    path('login/', user_login, name='login'),
+    path('logout/', user_logout, name='logout'),
     path('', home, name='home'),
     path('products/', products_page, name='products_page'),
     path('suppliers/', suppliers_page, name='suppliers_page'),

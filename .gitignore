@@ -4,5 +4,6 @@
 *.pyc
 __pycache__
 db.sqlite3
+Definitions.txt
 */migrations/
 !*/migrations/__init__.py

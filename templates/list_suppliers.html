@@ -1,43 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supplier List</title>
-</head>
-<body>
-    <h1>Supplier List</h1>
-    <table id="supplier-table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Address</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Suppliers will be dynamically added here -->
-        </tbody>
-    </table>
+{% extends 'base.html' %}
 
-    <script>
-        fetch('/inventory/list_suppliers/')
-        .then(response => response.json())
-        .then(suppliers => {
-            const tableBody = document.querySelector('#supplier-table tbody');
-            suppliers.forEach(supplier => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${supplier.name}</td>
-                    <td>${supplier.email}</td>
-                    <td>${supplier.phone}</td>
-                    <td>${supplier.address}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-    </script>
-</body>
-</html>
+{% block title %}Supplier List{% endblock %}
+
+{% block content %}
+<h1>Supplier List</h1>
+<table id="supplier-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Suppliers will be dynamically added here -->
+    </tbody>
+</table>
+
+<script>
+    fetch('/inventory/list_suppliers/')
+    .then(response => response.json())
+    .then(suppliers => {
+        const tableBody = document.querySelector('#supplier-table tbody');
+        suppliers.forEach(supplier => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${supplier.name}</td>
+                <td>${supplier.email}</td>
+                <td>${supplier.phone}</td>
+                <td>${supplier.address}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    })
+    .catch(error => console.error('Error:', error));
+</script>
+{% endblock %}
