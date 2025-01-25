@@ -13,7 +13,6 @@ from db_connection import db
 from bson import ObjectId
 
 
-
 #Add_Product_API
 @api_view(['POST'])
 def add_product(request):

@@ -4,63 +4,65 @@ from django.urls import reverse
 from inventory_management.forms import LoginForm, RegisterForm
 from inventory_management.users import User
 import bcrypt
+from .decorators import role_required
 
+@role_required(['store_manager', 'staff'])
 def add_product_page(request):
     return render(request, 'add_product.html')
 
-
+@role_required(['store_manager', 'supplier', 'staff'])
 def list_products_page(request):
     return render(request, 'list_products.html')
 
-
+@role_required(['store_manager', 'staff'])
 def add_supplier_page(request):
     return render(request, 'add_supplier.html')
 
-
+@role_required(['store_manager', 'staff'])
 def list_suppliers_page(request):
     return render(request, 'list_suppliers.html')
 
-
+@role_required(['store_manager', 'staff'])
 def add_stock_movement_page(request):
     return render(request, 'add_stock_movement.html')
 
-
+@role_required(['store_manager', 'staff'])
 def create_sale_order_page(request):
     return render(request, 'create_sale_order.html')
 
-
+@role_required(['store_manager', 'staff'])
 def cancel_sale_order_page(request):
     return render(request, 'cancel_sale_order.html')
 
-
+@role_required(['store_manager', 'staff'])
 def complete_sale_order_page(request):
     return render(request, 'complete_sale_order.html')
 
-
+@role_required(['store_manager', 'staff'])
 def list_sale_orders_page(request):
     return render(request, 'list_sale_order.html')
 
-
+@role_required(['store_manager', 'staff'])
 def check_stock_levels_page(request):
     return render(request, 'check_stock_levels.html')
 
-
+@role_required(['store_manager', 'supplier', 'staff'])
 def home(request):
     return render(request, 'home.html')
 
-
+@role_required(['store_manager', 'staff'])
 def products_page(request):
     return render(request, 'products.html')
 
-
+@role_required(['store_manager', 'staff'])
 def suppliers_page(request):
     return render(request, 'suppliers.html')
 
-
+@role_required(['store_manager', 'supplier', 'staff'])
 def orders_page(request):
     return render(request, 'orders.html')
 
-
+@role_required(['store_manager', 'staff'])
 def stock_page(request):
     return render(request, 'stock.html')
 
@@ -101,6 +103,11 @@ def user_login(request):
             if user and bcrypt.checkpw(password.encode('utf-8'), user['password_hash']):
                 request.session['user_id'] = str(user['_id'])
                 request.session['role'] = user['role']
+
+                # Debug statements
+                print(f"User ID: {request.session['user_id']}")
+                print(f"User Role: {request.session['role']}")
+
                 return redirect('home')
             else:
                 return render(request, 'login.html', {'form': form, 'error': 'Invalid username or password'})
