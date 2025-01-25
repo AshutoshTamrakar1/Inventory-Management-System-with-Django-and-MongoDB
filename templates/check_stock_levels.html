@@ -16,6 +16,39 @@
     </tbody>
 </table>
 
+<style>
+    #stock-level-table {
+        width: 80%;
+        margin: 0 auto;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #stock-level-table th {
+        border: 1px solid #ddd;
+        height: 20px;
+        padding: 20px;
+        text-align: center;
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    #stock-level-table td{
+        text-align: center;
+    }
+
+
+    #stock-level-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    #stock-level-table tr:hover {
+        background-color: #D6EEEE;
+    }
+</style>
+
 <script>
     fetch('/inventory/check_stock_levels/')
     .then(response => response.json())

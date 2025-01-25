@@ -18,6 +18,38 @@
     </tbody>
 </table>
 
+<style>
+    #supplier-table {
+        width: 80%;
+        margin: 0 auto;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #supplier-table th, #product-table td {
+        border: 1px solid #ddd;
+        height: 20px;
+        padding: 20px;
+        text-align: center;
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    #supplier-table  td{
+        text-align: center;
+    }
+
+    #supplier-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    #supplier-table tr:hover {
+        background-color: #D6EEEE;
+    }
+</style>
+
 <script>
     fetch('/inventory/list_suppliers/')
     .then(response => response.json())
