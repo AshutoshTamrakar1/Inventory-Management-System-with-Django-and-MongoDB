@@ -11,6 +11,7 @@
             <th>Email</th>
             <th>Phone</th>
             <th>Address</th>
+            <th>Actions</th> <!-- Added Actions Column -->
         </tr>
     </thead>
     <tbody>
@@ -27,18 +28,16 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    #supplier-table th, #product-table td {
+    #supplier-table th, #supplier-table td {
         border: 1px solid #ddd;
-        height: 20px;
         padding: 20px;
         text-align: center;
+    }
+
+    #supplier-table th {
         background-color: #007bff;
         color: white;
         font-weight: bold;
-    }
-
-    #supplier-table  td{
-        text-align: center;
     }
 
     #supplier-table tr:nth-child(even) {
@@ -47,6 +46,29 @@
 
     #supplier-table tr:hover {
         background-color: #D6EEEE;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .action-buttons button {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .edit-button {
+        background-color: #f39c12;
+        color: white;
+    }
+
+    .remove-button {
+        background-color: #e74c3c;
+        color: white;
     }
 </style>
 
@@ -62,10 +84,57 @@
                 <td>${supplier.email}</td>
                 <td>${supplier.phone}</td>
                 <td>${supplier.address}</td>
+                <td class="action-buttons">
+                    <button class="edit-button" onclick="editSupplier('${supplier._id}')">Edit</button>
+                    <button class="remove-button" onclick="removeSupplier('${supplier._id}')">Remove</button>
+                </td>
             `;
             tableBody.appendChild(row);
         });
     })
     .catch(error => console.error('Error:', error));
+
+    function editSupplier(supplierId) {
+        // Redirect to edit supplier page
+        window.location.href = `/inventory/edit_suppliers_page/${supplierId}/`;
+    }
+
+    function removeSupplier(supplierId) {
+        if (confirm("Are you sure you want to remove this supplier?")) {
+            fetch(`/inventory/remove_supplier/${supplierId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // Add CSRF token if needed
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    location.reload(); // Reload the page to see updates
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+
+    // Helper function to get CSRF token if needed
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
 {% endblock %}

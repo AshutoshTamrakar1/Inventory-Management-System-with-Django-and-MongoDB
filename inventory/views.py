@@ -2,6 +2,8 @@ from pyexpat.errors import messages
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.urls import reverse
+
+from inventory_management.decorators import role_required
 from .models import Product, Supplier, StockMovement, SaleOrder
 from rest_framework import status
 from datetime import datetime, timezone
@@ -155,6 +157,7 @@ def create_sale_order(request):
 
 
 #Cancel_Sale_Order_API
+@role_required(['store_manager', 'staff'])
 @api_view(['POST'])
 def cancel_sale_order(request, pk):
     try:
@@ -173,7 +176,7 @@ def cancel_sale_order(request, pk):
             return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Update stock levels
-        new_quantity = product['stock_quantity'] + sale_order['quantity']
+        new_quantity = int(product['stock_quantity']) + int(sale_order['quantity'])
         db.products.update_one({'_id': ObjectId(product_id)}, {'$set': {'stock_quantity': new_quantity}})
 
         # Update sale order status
@@ -187,6 +190,7 @@ def cancel_sale_order(request, pk):
 
 
 #Complete_Sale_Order_API
+@role_required(['store_manager', 'staff'])
 @api_view(['POST'])
 def complete_sale_order(request, pk):
     # Debugging print to check the ID received 
@@ -207,7 +211,7 @@ def complete_sale_order(request, pk):
             return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Update stock levels
-        new_quantity = product['stock_quantity'] - sale_order['quantity']
+        new_quantity = int(product['stock_quantity']) - int(sale_order['quantity'])
         db.products.update_one({'_id': ObjectId(product_id)}, {'$set': {'stock_quantity': new_quantity}})
 
         # Update sale order status
@@ -243,3 +247,14 @@ def check_stock_levels(request):
         product['supplier_id'] = str(product['supplier_id'])
     return Response(products, status=status.HTTP_200_OK)
 
+
+
+#Remove_Suplier_API
+@role_required(['store_manager'])
+@api_view(['DELETE'])
+def remove_supplier(request, pk):
+    try:
+        db.suppliers.delete_one({'_id': ObjectId(pk)})
+        return Response({"message": "Supplier removed successfully"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,10 +1,16 @@
+from django import db
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from inventory_management.forms import LoginForm, RegisterForm
 from inventory_management.users import User
 import bcrypt
+from bson import ObjectId
 from .decorators import role_required
+from rest_framework.decorators import api_view
+from rest_framework import status
+from rest_framework.response import Response
+
 
 @role_required(['store_manager', 'staff'])
 def add_product_page(request):
