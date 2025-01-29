@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
     add_product,
+    edit_supplier_api,
     list_products,
     add_supplier,
     list_suppliers,
@@ -24,5 +25,6 @@ urlpatterns = [
     path('complete_sale_order/<str:pk>/', complete_sale_order, name='complete_sale_order'),
     path('list_sale_orders/', list_sale_orders, name='list_sale_orders'),
     path('check_stock_levels/', check_stock_levels, name='check_stock_levels'),
-    path('remove_supplier/<str:pk>/', remove_supplier, name='remove_supplier')
+    path('remove_supplier/<str:pk>/', remove_supplier, name='remove_supplier'),
+    path('edit_supplier/<str:pk>/', edit_supplier_api, name='edit_supplier')
 ]

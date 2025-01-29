@@ -11,7 +11,7 @@
             <th>Email</th>
             <th>Phone</th>
             <th>Address</th>
-            <th>Actions</th> <!-- Added Actions Column -->
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -66,9 +66,23 @@
         color: white;
     }
 
+    .save-button {
+        background-color: #2ecc71;
+        color: white;
+    }
+
+    .cancel-button {
+        background-color: #e74c3c;
+        color: white;
+    }
+
     .remove-button {
         background-color: #e74c3c;
         color: white;
+    }
+
+    .edit-form {
+        display: none;
     }
 </style>
 
@@ -85,8 +99,18 @@
                 <td>${supplier.phone}</td>
                 <td>${supplier.address}</td>
                 <td class="action-buttons">
-                    <button class="edit-button" onclick="editSupplier('${supplier._id}')">Edit</button>
+                    <button class="edit-button" onclick="toggleEditForm('${supplier._id}')">Edit</button>
                     <button class="remove-button" onclick="removeSupplier('${supplier._id}')">Remove</button>
+                </td>
+                <td class="edit-form" id="edit-form-${supplier._id}">
+                    <form id="edit-supplier-form-${supplier._id}" onsubmit="saveSupplier(event, '${supplier._id}')">
+                        <input type="text" name="name" value="${supplier.name}" required>
+                        <input type="email" name="email" value="${supplier.email}" required>
+                        <input type="text" name="phone" value="${supplier.phone}" required>
+                        <input type="text" name="address" value="${supplier.address}" required>
+                        <button type="submit" class="save-button">Save</button>
+                        <button type="button" class="cancel-button" onclick="toggleEditForm('${supplier._id}')">Cancel</button>
+                    </form>
                 </td>
             `;
             tableBody.appendChild(row);
@@ -94,9 +118,39 @@
     })
     .catch(error => console.error('Error:', error));
 
-    function editSupplier(supplierId) {
-        // Redirect to edit supplier page
-        window.location.href = `/inventory/edit_suppliers_page/${supplierId}/`;
+    function toggleEditForm(supplierId) {
+        const editForm = document.getElementById(`edit-form-${supplierId}`);
+        editForm.style.display = editForm.style.display === 'none' ? 'table-row' : 'none';
+    }
+
+    function saveSupplier(event, supplierId) {
+        event.preventDefault();
+        const form = document.getElementById(`edit-supplier-form-${supplierId}`);
+        const formData = new FormData(form);
+
+        fetch(`/inventory/edit_supplier/${supplierId}/`, {
+            method: 'POST',
+            body: JSON.stringify({
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                address: formData.get('address')
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                location.reload(); // Reload the page to see updates
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
     }
 
     function removeSupplier(supplierId) {
@@ -105,7 +159,7 @@
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken') // Add CSRF token if needed
+                    'X-CSRFToken': getCookie('csrftoken')
                 }
             })
             .then(response => response.json())
@@ -126,7 +180,7 @@
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
-            for (let i = 0; cookies.length; i++) {
+            for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));

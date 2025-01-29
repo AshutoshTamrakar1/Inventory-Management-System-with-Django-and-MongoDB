@@ -258,3 +258,28 @@ def remove_supplier(request, pk):
         return Response({"message": "Supplier removed successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+@api_view(['GET', 'POST'])
+def edit_supplier_api(request, pk):
+    if request.method == 'GET':
+        supplier = db.suppliers.find_one({'_id': ObjectId(pk)})
+        return render(request, 'edit_supplier.html', {'supplier': supplier})
+    elif request.method == 'POST':
+        try:
+            name = request.data.get('name')
+            email = request.data.get('email')
+            phone = request.data.get('phone')
+            address = request.data.get('address')
+            
+            db.suppliers.update_one({'_id': ObjectId(pk)}, {'$set': {
+                'name': name,
+                'email': email,
+                'phone': phone,
+                'address': address
+            }})
+            
+            return Response({"message": "Supplier updated successfully"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
