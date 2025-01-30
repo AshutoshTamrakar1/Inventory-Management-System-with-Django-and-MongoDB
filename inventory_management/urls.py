@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from .views import home, orders_page, products_page, stock_page, suppliers_page, user_login, user_logout, register
+from .views import home, orders_page, products_page, profile_view, stock_page, suppliers_page, user_login, user_logout, register
 from inventory_management.views import add_product_page, list_products_page, add_supplier_page, list_suppliers_page, add_stock_movement_page, create_sale_order_page, list_sale_orders_page, check_stock_levels_page
 
 urlpatterns = [
@@ -38,5 +38,6 @@ urlpatterns = [
     path('add_stock_movement_page/', add_stock_movement_page, name='add_stock_movement_page'),
     path('create_sale_order_page/', create_sale_order_page, name='create_sale_order_page'),
     path('list_sale_orders_page/', list_sale_orders_page, name='list_sale_orders_page'),
-    path('check_stock_levels_page/', check_stock_levels_page, name='check_stock_levels_page')
+    path('check_stock_levels_page/', check_stock_levels_page, name='check_stock_levels_page'),
+    path('profile/', profile_view, name='profile')
 ]

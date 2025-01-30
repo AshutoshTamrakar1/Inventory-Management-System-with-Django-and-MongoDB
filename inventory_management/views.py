@@ -124,3 +124,11 @@ def user_login(request):
 def user_logout(request):
     request.session.flush()
     return redirect('login')
+
+def profile_view(request):
+    if 'user_id' in request.session:
+        user_id = request.session['user_id']
+        user_profile = User.get_by_id(ObjectId(user_id))
+        return render(request, 'profile.html', {'user': user_profile})
+    else:
+        return redirect('login') 

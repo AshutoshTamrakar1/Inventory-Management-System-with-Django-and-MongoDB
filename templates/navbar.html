@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <style>
         .navbar {
             background-color: #333;
@@ -20,6 +21,20 @@
             background-color: #ddd;
             color: black;
         }
+        .navbar .profile {
+            float: right;
+            display: flex;
+            align-items: center;
+        }
+        .navbar .profile img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .navbar .profile span {
+            color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -30,6 +45,12 @@
         <a href="/orders/">Orders</a>
         <a href="/stock/">Stock</a>
         <a href="/logout/">Logout</a>
+        <div class="profile">
+            <a href="/profile/">
+                <i class="glyphicon glyphicon-user"></i>
+                <span>{{ user.username }}</span>
+            </a>
+        </div>
     </div>
 </body>
 </html>
