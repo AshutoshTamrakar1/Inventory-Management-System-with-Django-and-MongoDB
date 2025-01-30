@@ -18,23 +18,49 @@ from bson import ObjectId
 #Add_Product_API
 @api_view(['POST'])
 def add_product(request):
-    supplier_name = request.data.get('supplier')
-    supplier = db.suppliers.find_one({'name': supplier_name})
-    
-    if not supplier:
-        supplier_id = db.suppliers.insert_one({'name': supplier_name}).inserted_id
-    else:
-        supplier_id = supplier['_id']
-    
-    request.data['supplier_id'] = str(supplier_id)  # Convert ObjectId to string
-    
-    # Check for duplicate product
-    if db.products.find_one({'name': request.data.get('name')}):
-        return Response({"error": "Product already exists"}, status=status.HTTP_400_BAD_REQUEST)
-    
-    product_id = db.products.insert_one(request.data).inserted_id
-    request.data['_id'] = str(product_id)  # Convert ObjectId to string
-    return Response(request.data, status=status.HTTP_201_CREATED)
+    try:
+        supplier_name = request.data.get('supplier')
+        supplier = db.suppliers.find_one({'name': supplier_name})
+        
+        if not supplier:
+            return Response({"error": "Supplier does not exist. Please add the supplier first."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        supplier_id = str(supplier['_id'])
+        product_name = request.data.get('name')
+        price = float(request.data.get('price'))
+        stock_quantity = int(request.data.get('stock_quantity'))
+
+        # Prepare the new product data
+        new_product_data = {
+            'name': product_name,
+            'description': request.data.get('description'),
+            'category': request.data.get('category'),
+            'price': price,
+            'stock_quantity': stock_quantity,
+            'supplier': supplier_name,
+            'supplier_id': supplier_id
+        }
+
+        # Check for duplicate product with the same supplier and price
+        existing_product = db.products.find_one({'name': product_name, 'supplier_id': supplier_id, 'price': price})
+        if existing_product:
+            # Increase the quantity of the existing product
+            new_quantity = int(existing_product['stock_quantity']) + stock_quantity
+            db.products.update_one({'_id': existing_product['_id']}, {'$set': {'stock_quantity': new_quantity}})
+            return Response({"message": "Product quantity updated successfully"}, status=status.HTTP_200_OK)
+        
+        # Check for duplicate product with the same name but different supplier or price
+        if db.products.find_one({'name': product_name}):
+            product_id = db.products.insert_one(new_product_data).inserted_id
+            new_product_data['_id'] = str(product_id)
+            return Response(new_product_data, status=status.HTTP_201_CREATED)
+
+        # Add new product
+        product_id = db.products.insert_one(new_product_data).inserted_id
+        new_product_data['_id'] = str(product_id)
+        return Response(new_product_data, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -260,7 +286,8 @@ def remove_supplier(request, pk):
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 
-
+#Edit_Supplier_API
+@role_required(['store_manager','staff'])
 @api_view(['GET', 'POST'])
 def edit_supplier_api(request, pk):
     if request.method == 'GET':
