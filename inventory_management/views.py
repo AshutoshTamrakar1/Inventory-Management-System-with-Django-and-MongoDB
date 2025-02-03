@@ -132,3 +132,21 @@ def profile_view(request):
         return render(request, 'profile.html', {'user': user_profile})
     else:
         return redirect('login') 
+
+def profile_view(request):
+    if 'user_id' in request.session:
+        user_id = request.session['user_id']
+        user_profile = User.get_by_id(ObjectId(user_id))
+
+        if request.method == 'POST':
+            user_profile.username = request.POST['username']
+            user_profile.email = request.POST['email']
+            user_profile.bio = request.POST['bio']
+            user_profile.location = request.POST['location']
+            user_profile.birth_date = request.POST['birth_date']
+            user_profile.save()
+            return redirect('profile')
+
+        return render(request, 'profile.html', {'user': user_profile})
+    else:
+        return redirect('login')

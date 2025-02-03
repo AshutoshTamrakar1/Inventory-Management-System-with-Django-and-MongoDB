@@ -9,4 +9,29 @@
 <p><strong>Role:</strong> {{ user.role }}</p>
 <p><strong>Bio:</strong> {{ user.bio }}</p>
 <p><strong>Location:</strong> {{ user.location }}</p>
+
+<!-- Edit Button -->
+<button id="edit-btn">Edit</button>
+
+<!-- Edit Form (Initially Hidden) -->
+<form id="edit-form" method="post" style="display: none;">
+    {% csrf_token %}
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" value="{{ user.username }}"><br>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" value="{{ user.email }}"><br>
+    <label for="bio">Bio:</label>
+    <input type="text" id="bio" name="bio" value="{{ user.bio }}"><br>
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" value="{{ user.location }}"><br>
+    <label for="birth_date">Birth Date:</label>
+    <input type="date" id="birth_date" name="birth_date" value="{{ user.birth_date }}"><br>
+    <button type="submit">Save Changes</button>
+</form>
+
+<script>
+    document.getElementById('edit-btn').addEventListener('click', function() {
+        document.getElementById('edit-form').style.display = 'block';
+    });
+</script>
 {% endblock %}
