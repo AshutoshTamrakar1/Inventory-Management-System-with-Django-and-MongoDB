@@ -1,9 +1,10 @@
 from pyexpat.errors import messages
 from django.db import IntegrityError
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from inventory_management.decorators import role_required
+from user_management.decorators import role_required
 from .models import Product, Supplier, StockMovement, SaleOrder
 from rest_framework import status
 from datetime import datetime, timezone
@@ -67,8 +68,16 @@ def add_product(request):
 #List_Product_API
 @api_view(['GET'])
 def list_products(request):
-    products = list(db.products.find())
-    # Convert ObjectId to string for JSON serialization
+    user_role = request.session.get('role')
+    user_name = request.session.get('username')  # Retrieve the username from the session
+    
+    if user_role == 'supplier':
+        products = list(db.products.find({'supplier': user_name}))  # Match supplier_name with logged-in user's name
+        
+    else:
+        products = list(db.products.find())  # Show all products for store managers and staff
+        
+    
     for product in products:
         product['_id'] = str(product['_id'])
         product['supplier_id'] = str(product['supplier_id'])
@@ -186,6 +195,11 @@ def create_sale_order(request):
 @role_required(['store_manager', 'staff'])
 @api_view(['POST'])
 def cancel_sale_order(request, pk):
+    user_role = request.session.get('role')
+
+    if user_role == 'supplier':
+        return HttpResponseForbidden("You do not have permission to cancel this order.")
+
     try:
         # Retrieve sale order by ObjectId
         sale_order = db.sale_orders.find_one({'_id': ObjectId(pk)})
@@ -219,8 +233,12 @@ def cancel_sale_order(request, pk):
 @role_required(['store_manager', 'staff'])
 @api_view(['POST'])
 def complete_sale_order(request, pk):
-    # Debugging print to check the ID received 
-    print(f"Received order ID: {pk}")
+    user_role = request.session.get('role')
+    user_name = request.session.get('username')  # Retrieve the username from the session
+
+    if user_role != 'supplier':
+        return HttpResponseForbidden("You do not have permission to complete this order.")
+
     try:
         # Retrieve sale order by ObjectId
         sale_order = db.sale_orders.find_one({'_id': ObjectId(pk)})
@@ -235,6 +253,9 @@ def complete_sale_order(request, pk):
         product = db.products.find_one({'_id': ObjectId(product_id)})
         if not product:
             return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if product['supplier_name'] != user_name:
+            return HttpResponseForbidden("You do not have permission to complete this order.")
 
         # Update stock levels
         new_quantity = int(product['stock_quantity']) - int(sale_order['quantity'])
@@ -253,11 +274,32 @@ def complete_sale_order(request, pk):
 #List Sale_order_API
 @api_view(['GET'])
 def list_sale_orders(request):
-    sale_orders = list(db.sale_orders.find())
-    # Convert ObjectId to string for JSON serialization
-    for order in sale_orders:
-        order['_id'] = str(order['_id'])
-        order['product_id'] = str(order['product_id'])
+    user_role = request.session.get('role')
+    user_name = request.session.get('username')  # Retrieve the username from the session
+
+    if user_role == 'supplier' and user_name:
+        # Fetch products supplied by the logged-in supplier
+        products = list(db.products.find({'supplier': user_name}))
+        product_ids = [str(product['_id']) for product in products]  # Convert ObjectIds to strings
+        
+        # Fetch orders for products supplied by the logged-in supplier
+        sale_orders = list(db.sale_orders.find({'product_id': {'$in': product_ids}}))  # Match product_id as string
+
+        # Ensure all matching sale orders are retrieved correctly
+        for order in sale_orders:
+            order['_id'] = str(order['_id'])
+            order['product_id'] = str(order['product_id'])
+
+    else:
+        # Fetch all sale orders for store_manager and staff roles
+        sale_orders = list(db.sale_orders.find())
+        
+
+        # Ensure all sale orders are correctly retrieved and converted
+        for order in sale_orders:
+            order['_id'] = str(order['_id'])
+            order['product_id'] = str(order['product_id'])
+
     return Response(sale_orders, status=status.HTTP_200_OK)
 
 

@@ -1,6 +1,7 @@
 from django import forms
 
-from inventory_management.users import Role
+from user_management.models import Role
+
 
 class RegisterForm(forms.Form):
     username = forms.CharField(max_length=100)

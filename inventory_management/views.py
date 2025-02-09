@@ -1,15 +1,11 @@
-from django import db
-from django.shortcuts import redirect, render
-from django.urls import reverse
-
-from inventory_management.forms import LoginForm, RegisterForm
-from inventory_management.users import User
 import bcrypt
+from django.shortcuts import redirect, render
 from bson import ObjectId
-from .decorators import role_required
-from rest_framework.decorators import api_view
-from rest_framework import status
-from rest_framework.response import Response
+from inventory.models import Supplier
+from inventory_management.forms import LoginForm, RegisterForm
+from user_management.decorators import role_required
+from user_management.models import User
+from django.contrib.auth.decorators import login_required
 
 
 @role_required(['store_manager', 'staff'])
@@ -18,7 +14,8 @@ def add_product_page(request):
 
 @role_required(['store_manager', 'supplier', 'staff'])
 def list_products_page(request):
-    return render(request, 'list_products.html')
+    user_role = request.session.get('role')
+    return render(request, 'list_products.html', {'role': user_role})
 
 @role_required(['store_manager', 'staff'])
 def add_supplier_page(request):
@@ -44,19 +41,19 @@ def cancel_sale_order_page(request):
 def complete_sale_order_page(request):
     return render(request, 'complete_sale_order.html')
 
-@role_required(['store_manager', 'staff'])
+@role_required(['store_manager', 'staff', 'supplier'])
 def list_sale_orders_page(request):
-    return render(request, 'list_sale_order.html')
+    user_role = request.session.get('role')
+    return render(request, 'list_sale_order.html', {'role': user_role})
 
 @role_required(['store_manager', 'staff'])
 def check_stock_levels_page(request):
     return render(request, 'check_stock_levels.html')
 
-@role_required(['store_manager', 'supplier', 'staff'])
 def home(request):
     return render(request, 'home.html')
 
-@role_required(['store_manager', 'staff'])
+@role_required(['store_manager' , 'supplier',  'staff'])
 def products_page(request):
     return render(request, 'products.html')
 
@@ -97,6 +94,7 @@ def register(request):
         form = RegisterForm()
     return render(request, 'register.html', {'form': form})
 
+
 def user_login(request):
     if request.user.is_authenticated:
         return redirect('home')  # Redirect authenticated users to home page
@@ -106,13 +104,10 @@ def user_login(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = User.get_by_username(username)
-            if user and bcrypt.checkpw(password.encode('utf-8'), user['password_hash']):
-                request.session['user_id'] = str(user['_id'])
-                request.session['role'] = user['role']
-
-                # Debug statements
-                print(f"User ID: {request.session['user_id']}")
-                print(f"User Role: {request.session['role']}")
+            if user and bcrypt.checkpw(password.encode('utf-8'), user.password_hash):
+                request.session['user_id'] = str(user._id)
+                request.session['role'] = user.role
+                request.session['username'] = user.username  # Store username in session
 
                 return redirect('home')
             else:
@@ -121,17 +116,10 @@ def user_login(request):
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
 
+
 def user_logout(request):
     request.session.flush()
     return redirect('login')
-
-def profile_view(request):
-    if 'user_id' in request.session:
-        user_id = request.session['user_id']
-        user_profile = User.get_by_id(ObjectId(user_id))
-        return render(request, 'profile.html', {'user': user_profile})
-    else:
-        return redirect('login') 
 
 def profile_view(request):
     if 'user_id' in request.session:

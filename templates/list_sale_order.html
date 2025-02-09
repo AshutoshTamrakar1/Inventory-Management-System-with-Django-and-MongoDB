@@ -4,6 +4,9 @@
 
 {% block content %}
 <h1>Sale Order List</h1>
+{% if role == 'supplier' %}
+    <p>Displaying orders for products you supplied.</p>
+{% endif %}
 <table id="sale-order-table">
     <thead>
         <tr>
@@ -13,7 +16,7 @@
             <th>Sale Date</th>
             <th>Status</th>
             <th>Notes</th>
-            <th>Actions</th> <!-- Added Actions Column -->
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -143,9 +146,8 @@
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
+            for (let i = 0; cookies.length > i; i++) {
                 const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;

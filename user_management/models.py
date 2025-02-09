@@ -1,9 +1,7 @@
-from django.db import models
 from db_connection import db
 from enum import Enum
 import bcrypt
 from bson import ObjectId
-
 
 class Role(Enum):
     STORE_MANAGER = 'store_manager'
