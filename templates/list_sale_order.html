@@ -7,6 +7,9 @@
 {% if role == 'supplier' %}
     <p>Displaying orders for products you supplied.</p>
 {% endif %}
+
+<canvas id="sales-trend-chart" width="400" height="200"></canvas>
+
 <table id="sale-order-table">
     <thead>
         <tr>
@@ -25,9 +28,14 @@
 </table>
 
 <style>
+    #sales-trend-chart {
+        width: 80%;
+        margin: 20px auto;
+    }
+
     #sale-order-table {
         width: 80%;
-        margin: 0 auto;
+        margin: 20px auto;
         border-collapse: separate;
         border-spacing: 0 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -77,11 +85,14 @@
     }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     fetch('/inventory/list_sale_orders/')
     .then(response => response.json())
     .then(saleOrders => {
         const tableBody = document.querySelector('#sale-order-table tbody');
+        const salesTrend = {};
+
         saleOrders.forEach(order => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -97,6 +108,38 @@
                 </td>
             `;
             tableBody.appendChild(row);
+
+            // Collect sales trend data for non-cancelled orders
+            if (order.status !== 'Cancelled') {
+                const saleDate = order.sale_date.split('T')[0];
+                if (!salesTrend[saleDate]) {
+                    salesTrend[saleDate] = 0;
+                }
+                salesTrend[saleDate] += parseFloat(order.total_price);
+            }
+        });
+
+        // Generate sales trend chart
+        const trendCtx = document.getElementById('sales-trend-chart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: Object.keys(salesTrend),
+                datasets: [{
+                    label: 'Total Sales',
+                    data: Object.values(salesTrend),
+                    borderColor: '#007bff',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
         });
     })
     .catch(error => console.error('Error:', error));

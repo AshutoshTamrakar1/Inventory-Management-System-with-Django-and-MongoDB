@@ -283,7 +283,7 @@ def list_sale_orders(request):
         product_ids = [str(product['_id']) for product in products]  # Convert ObjectIds to strings
         
         # Fetch orders for products supplied by the logged-in supplier
-        sale_orders = list(db.sale_orders.find({'product_id': {'$in': product_ids}}))  # Match product_id as string
+        sale_orders = list(db.sale_orders.find({'product_id': {'$in': product_ids}}).sort('sale_date', -1))  # Sort by sale_date descending
 
         # Ensure all matching sale orders are retrieved correctly
         for order in sale_orders:
@@ -292,8 +292,7 @@ def list_sale_orders(request):
 
     else:
         # Fetch all sale orders for store_manager and staff roles
-        sale_orders = list(db.sale_orders.find())
-        
+        sale_orders = list(db.sale_orders.find().sort('sale_date', -1))  # Sort by sale_date descending
 
         # Ensure all sale orders are correctly retrieved and converted
         for order in sale_orders:
