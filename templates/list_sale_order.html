@@ -109,8 +109,8 @@
             `;
             tableBody.appendChild(row);
 
-            // Collect sales trend data for non-cancelled orders
-            if (order.status !== 'Cancelled') {
+            // Collect sales trend data for completed orders only
+            if (order.status === 'Completed') {
                 const saleDate = order.sale_date.split('T')[0];
                 if (!salesTrend[saleDate]) {
                     salesTrend[saleDate] = 0;
@@ -118,6 +118,8 @@
                 salesTrend[saleDate] += parseFloat(order.total_price);
             }
         });
+
+        console.log('Sales Trend Data:', salesTrend);  // Debugging information
 
         // Generate sales trend chart
         const trendCtx = document.getElementById('sales-trend-chart').getContext('2d');

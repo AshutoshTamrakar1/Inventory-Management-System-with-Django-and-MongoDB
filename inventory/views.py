@@ -236,7 +236,7 @@ def complete_sale_order(request, pk):
     user_role = request.session.get('role')
     user_name = request.session.get('username')  # Retrieve the username from the session
 
-    if user_role != 'supplier':
+    if user_role == 'supplier':
         return HttpResponseForbidden("You do not have permission to complete this order.")
 
     try:
@@ -253,9 +253,6 @@ def complete_sale_order(request, pk):
         product = db.products.find_one({'_id': ObjectId(product_id)})
         if not product:
             return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        if product['supplier_name'] != user_name:
-            return HttpResponseForbidden("You do not have permission to complete this order.")
 
         # Update stock levels
         new_quantity = int(product['stock_quantity']) - int(sale_order['quantity'])
