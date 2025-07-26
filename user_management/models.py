@@ -2,6 +2,9 @@ from db_connection import db
 from enum import Enum
 import bcrypt
 from bson import ObjectId
+import logging
+
+logger = logging.getLogger('user_management')
 
 class Role(Enum):
     STORE_MANAGER = 'store_manager'
@@ -24,6 +27,7 @@ class User:
         return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     def save(self):
+        logger.info(f"Saving user: {self.username}")
         user_data = {
             'username': self.username,
             'password_hash': self.password_hash,
@@ -54,6 +58,7 @@ class User:
 
     @staticmethod
     def get_by_username(username):
+        logger.info(f"Fetching user by username: {username}")
         user_data = db.users.find_one({'username': username})
         if user_data:
             return User.from_dict(user_data)
@@ -72,4 +77,5 @@ class User:
 
     @staticmethod
     def check_password(stored_password, provided_password):
+        logger.info("Checking password for user login")
         return bcrypt.checkpw(provided_password.encode('utf-8'), stored_password)

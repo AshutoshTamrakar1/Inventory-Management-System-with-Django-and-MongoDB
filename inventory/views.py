@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.urls import reverse
+import logging
 
 from user_management.decorators import role_required
 from .models import Product, Supplier, StockMovement, SaleOrder
@@ -15,10 +16,13 @@ from .serializers import ProductSerializer, SupplierSerializer, StockMovementSer
 from db_connection import db
 from bson import ObjectId
 
+logger = logging.getLogger('inventory')
+
 
 #Add_Product_API
 @api_view(['POST'])
 def add_product(request):
+    logger.info(f"Add product request: {request.data}")
     try:
         supplier_name = request.data.get('supplier')
         supplier = db.suppliers.find_one({'name': supplier_name})
@@ -48,19 +52,23 @@ def add_product(request):
             # Increase the quantity of the existing product
             new_quantity = int(existing_product['stock_quantity']) + stock_quantity
             db.products.update_one({'_id': existing_product['_id']}, {'$set': {'stock_quantity': new_quantity}})
+            logger.info(f"Product quantity updated: {product_name}, New Quantity: {new_quantity}")
             return Response({"message": "Product quantity updated successfully"}, status=status.HTTP_200_OK)
         
         # Check for duplicate product with the same name but different supplier or price
         if db.products.find_one({'name': product_name}):
             product_id = db.products.insert_one(new_product_data).inserted_id
             new_product_data['_id'] = str(product_id)
+            logger.info(f"Product added with new supplier or price: {product_name}")
             return Response(new_product_data, status=status.HTTP_201_CREATED)
 
         # Add new product
         product_id = db.products.insert_one(new_product_data).inserted_id
         new_product_data['_id'] = str(product_id)
+        logger.info(f"New product added: {product_name}")
         return Response(new_product_data, status=status.HTTP_201_CREATED)
     except Exception as e:
+        logger.error(f"Error adding product: {e}")
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -89,15 +97,21 @@ def list_products(request):
 #Add_Supplier_API
 @api_view(['POST'])
 def add_supplier(request):
+    logger.info(f"Add supplier request: {request.data}")
     supplier_data = request.data
     
     # Check for duplicate supplier
     if db.suppliers.find_one({'email': supplier_data.get('email')}):
         return Response({"error": "Supplier with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
     
-    supplier_id = db.suppliers.insert_one(supplier_data).inserted_id
-    supplier_data['_id'] = str(supplier_id)  # Convert ObjectId to string
-    return Response(supplier_data, status=status.HTTP_201_CREATED)
+    try:
+        supplier_id = db.suppliers.insert_one(supplier_data).inserted_id
+        supplier_data['_id'] = str(supplier_id)  # Convert ObjectId to string
+        logger.info(f"Supplier added: {supplier_data.get('name')}")
+        return Response(supplier_data, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        logger.error(f"Error adding supplier: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -147,6 +161,7 @@ def add_stock_movement(request):
     data['product_id'] = str(product_id)  # Add product_id to the movement data
     movement_id = db.stock_movements.insert_one(data).inserted_id
     data['_id'] = str(movement_id)  # Convert ObjectId to string
+    logger.info(f"Stock movement added: Product - {product_name}, Quantity - {quantity}, Type - {movement_type}")
     return Response(data, status=status.HTTP_201_CREATED)
 
 
@@ -187,6 +202,7 @@ def create_sale_order(request):
     order_id = db.sale_orders.insert_one(data).inserted_id
     data['_id'] = str(order_id)  # Convert ObjectId to string
     data['product_id'] = str(product_id)  # Convert ObjectId to string
+    logger.info(f"Sale order created: Product - {product_name}, Quantity - {quantity}, Total Price - {total_price}")
     return Response(data, status=status.HTTP_201_CREATED)
 
 
@@ -222,8 +238,10 @@ def cancel_sale_order(request, pk):
         # Update sale order status
         db.sale_orders.update_one({'_id': ObjectId(pk)}, {'$set': {'status': "Cancelled"}})
 
+        logger.info(f"Sale order cancelled: Order ID - {pk}, Product - {product_id}, Quantity - {sale_order['quantity']}")
         return Response({"message": "Sale order cancelled successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
+        logger.error(f"Error cancelling sale order: {e}")
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -261,8 +279,10 @@ def complete_sale_order(request, pk):
         # Update sale order status
         db.sale_orders.update_one({'_id': ObjectId(pk)}, {'$set': {'status': "Completed"}})
 
+        logger.info(f"Sale order completed: Order ID - {pk}, Product - {product_id}, Quantity - {sale_order['quantity']}")
         return Response({"message": "Sale order completed successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
+        logger.error(f"Error completing sale order: {e}")
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -319,8 +339,10 @@ def check_stock_levels(request):
 def remove_supplier(request, pk):
     try:
         db.suppliers.delete_one({'_id': ObjectId(pk)})
+        logger.info(f"Supplier removed: ID - {pk}")
         return Response({"message": "Supplier removed successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
+        logger.error(f"Error removing supplier: {e}")
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -345,6 +367,8 @@ def edit_supplier_api(request, pk):
                 'address': address
             }})
             
+            logger.info(f"Supplier updated: ID - {pk}, Name - {name}")
             return Response({"message": "Supplier updated successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
+            logger.error(f"Error updating supplier: {e}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

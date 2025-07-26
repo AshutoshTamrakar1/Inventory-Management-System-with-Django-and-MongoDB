@@ -1,4 +1,5 @@
 import bcrypt
+import logging
 from django.shortcuts import redirect, render
 from bson import ObjectId
 from inventory.models import Supplier
@@ -6,6 +7,8 @@ from inventory_management.forms import LoginForm, RegisterForm
 from user_management.decorators import role_required
 from user_management.models import User
 from django.contrib.auth.decorators import login_required
+
+logger = logging.getLogger('inventory_management')
 
 
 @role_required(['store_manager', 'staff'])
@@ -70,6 +73,7 @@ def stock_page(request):
     return render(request, 'stock.html')
 
 def register(request):
+    logger.info("Accessed register page")
     if request.user.is_authenticated:
         return redirect('home')  # Redirect authenticated users to home page
     if request.method == 'POST':
@@ -89,6 +93,7 @@ def register(request):
 
             user = User(username=username, password=password, email=email, role=role)
             user.save()
+            logger.info(f"Registering user: {username}")
             return redirect('login')
     else:
         form = RegisterForm()
@@ -96,6 +101,7 @@ def register(request):
 
 
 def user_login(request):
+    logger.info("Accessed login page")
     if request.user.is_authenticated:
         return redirect('home')  # Redirect authenticated users to home page
     if request.method == 'POST':
@@ -108,9 +114,10 @@ def user_login(request):
                 request.session['user_id'] = str(user._id)
                 request.session['role'] = user.role
                 request.session['username'] = user.username  # Store username in session
-
+                logger.info(f"User logged in: {username}")
                 return redirect('home')
             else:
+                logger.warning(f"Failed login attempt for username: {username}")
                 return render(request, 'login.html', {'form': form, 'error': 'Invalid username or password'})
     else:
         form = LoginForm()
@@ -118,10 +125,12 @@ def user_login(request):
 
 
 def user_logout(request):
+    logger.info("User logged out")
     request.session.flush()
     return redirect('login')
 
 def profile_view(request):
+    logger.info("Accessed profile view")
     if 'user_id' in request.session:
         user_id = request.session['user_id']
         user_profile = User.get_by_id(ObjectId(user_id))
