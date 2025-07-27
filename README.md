@@ -1,44 +1,82 @@
 # Inventory Management System
 
-This Inventory Management System is a Django-based web application that uses MongoDB for database storage. It provides RESTful APIs to manage products, suppliers, stock movements, and sale orders, and offers a user-friendly HTML interface for interacting with the system.
+This Inventory Management System is a Django-based web application using MongoDB for database storage. It provides RESTful APIs and a user-friendly HTML interface for managing products, suppliers, stock movements, sale orders, and users.
 
 ## Features
 
-- **Add Product**: Add a new product to the inventory with validation for stock quantity, price, and product details.
-- **List Products**: Retrieve a list of all products in the inventory, including name, description, price, stock quantity, and supplier details.
-- **Add Supplier**: Add a new supplier to the system with validation for email and phone number format, ensuring no duplicate records exist.
-- **List Suppliers**: Retrieve a list of all suppliers, including name, email, phone, and address details.
-- **Add Stock Movement**: Record incoming or outgoing stock and update stock levels accordingly, ensuring proper validation of stock levels.
-- **Create Sale Order**: Create sale orders by selecting products, verifying sufficient stock, and calculating the total price.
-- **Cancel Sale Order**: Cancel an existing sale order, update the status to "Cancelled", and restore stock levels.
-- **Complete Sale Order**: Mark an order as "Completed" and update the stock levels accordingly.
-- **List Sale Orders**: Retrieve a list of all sale orders, including product name, quantity, total price, sale date, status, and additional notes.
-- **Stock Level Check**: Check and return the current stock level for each product.
+- **User Authentication & Roles**
+  - Register, login, logout, and profile management
+  - Role-based access: Store Manager, Supplier, Staff
 
-## URLs
+- **Product Management**
+  - Add new products with validation
+  - List all products with details
+  - Edit product information
+  - Check product stock levels
 
-### API Endpoints
+- **Supplier Management**
+  - Add new suppliers with validation
+  - List all suppliers with details
+  - Edit and remove suppliers
 
-- **Add Product**: `http://127.0.0.1:8000/inventory/add_product/`
-- **List Products**: `http://127.0.0.1:8000/inventory/list_products/`
-- **Add Supplier**: `http://127.0.0.1:8000/inventory/add_supplier/`
-- **List Suppliers**: `http://127.0.0.1:8000/inventory/list_suppliers/`
-- **Add Stock Movement**: `http://127.0.0.1:8000/inventory/add_stock_movement/`
-- **Create Sale Order**: `http://127.0.0.1:8000/inventory/create_sale_order/`
-- **Cancel Sale Order**: `http://127.0.0.1:8000/inventory/cancel_sale_order/<int:pk>/`
-- **Complete Sale Order**: `http://127.0.0.1:8000/inventory/complete_sale_order/<int:pk>/`
-- **List Sale Orders**: `http://127.0.0.1:8000/inventory/list_sale_orders/`
-- **Check Stock Levels**: `http://127.0.0.1:8000/inventory/check_stock_levels/`
+- **Stock Movement**
+  - Record incoming and outgoing stock
+  - Update and validate stock levels
 
+- **Sale Order Management**
+  - Create sale orders with product selection and stock verification
+  - Cancel sale orders (restores stock)
+  - Complete sale orders (updates stock)
+  - List all sale orders with status and details
 
-### HTML Templates 
-- **Add Product Page**: `http://127.0.0.1:8000/add_product_page/` 
-- **List Products Page**: `http://127.0.0.1:8000/list_products_page/` 
-- **Add Supplier Page**: `http://127.0.0.1:8000/add_supplier_page/` 
-- **List Suppliers Page**: `http://127.0.0.1:8000/list_suppliers_page/` 
-- **Add Stock Movement Page**: `http://127.0.0.1:8000/add_stock_movement_page/` 
-- **Create Sale Order Page**: `http://127.0.0.1:8000/create_sale_order_page/` 
-- **Cancel Sale Order Page**: `http://127.0.0.1:8000/cancel_sale_order_page/` 
-- **Complete Sale Order Page**: `http://127.0.0.1:8000/complete_sale_order_page/` 
-- **List Sale Orders Page**: `http://127.0.0.1:8000/list_sale_orders_page/` 
-- **Check Stock Levels Page**: `http://127.0.0.1:8000/check_stock_levels_page/`
+- **RESTful API Endpoints**
+  - CRUD operations for products and suppliers
+  - Stock movement and sale order APIs
+  - Stock level check API
+
+- **HTML Interface**
+  - Pages for all major operations (add/list/edit products, suppliers, stock, orders)
+  - Role-based navigation and access
+
+- **Logging**
+  - Centralized logging for all major actions and errors
+
+- **Testing**
+  - Unit tests for models and views 
+
+## API Endpoints
+
+- **Add Product:** `/inventory/add_product/`
+- **List Products:** `/inventory/list_products/`
+- **Add Supplier:** `/inventory/add_supplier/`
+- **List Suppliers:** `/inventory/list_suppliers/`
+- **Add Stock Movement:** `/inventory/add_stock_movement/`
+- **Create Sale Order:** `/inventory/create_sale_order/`
+- **Cancel Sale Order:** `/inventory/cancel_sale_order/<int:pk>/`
+- **Complete Sale Order:** `/inventory/complete_sale_order/<int:pk>/`
+- **List Sale Orders:** `/inventory/list_sale_orders/`
+- **Check Stock Levels:** `/inventory/check_stock_levels/`
+
+## HTML Pages
+
+- **Add Product Page:** `/add_product_page/`
+- **List Products Page:** `/list_products_page/`
+- **Add Supplier Page:** `/add_supplier_page/`
+- **List Suppliers Page:** `/list_suppliers_page/`
+- **Add Stock Movement Page:** `/add_stock_movement_page/`
+- **Create Sale Order Page:** `/create_sale_order_page/`
+- **Cancel Sale Order Page:** `/cancel_sale_order_page/`
+- **Complete Sale Order Page:** `/complete_sale_order_page/`
+- **List Sale Orders Page:** `/list_sale_orders_page/`
+- **Check Stock Levels Page:** `/check_stock_levels_page/`
+- **User Registration/Login/Profile:** `/register/`, `/login/`, `/profile/`
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies
+3. Configure MongoDB connection
+4. Run migrations and start the server
+5. Access the app via browser or API tools
+
+---

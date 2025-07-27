@@ -15,6 +15,7 @@ logger = logging.getLogger('inventory_management')
 def add_product_page(request):
     return render(request, 'add_product.html')
 
+
 @role_required(['store_manager', 'supplier', 'staff'])
 def list_products_page(request):
     user_role = request.session.get('role')
